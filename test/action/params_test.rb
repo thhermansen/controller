@@ -214,6 +214,29 @@ describe Hanami::Action::Params do
       params.error_messages.must_be_empty
     end
 
+    it "is valid with nested params, hashes within array" do
+      params = NestedArrayParams.new(
+        {
+          data: {
+            attributes: {
+              email: 'th@skalar.no',
+              password: 'secret',
+              alternative_emails: [
+                {email: "th@skalar.no", description: "work"},
+                {email: "th@home.no",   description: "home"}
+              ]
+            }
+          }
+        }
+      )
+
+      params.valid?.must_equal true
+      params.get('data.attributes.alternative_emails').must_equal [
+        {email: "th@skalar.no", description: "work"},
+        {email: "th@home.no",   description: "home"}
+      ]
+    end
+
     it "has input available through the hash accessor" do
       params = TestParams.new(name: 'John', age: '1', address: { line_one: '10 High Street' })
       params[:name].must_equal('John')
@@ -438,7 +461,7 @@ describe Hanami::Action::Params do
         actual[:address].must_be_kind_of(::Hash)
         actual[:address][:deep].must_be_kind_of(::Hash)
       end
-    
+
       it 'does not stringify values' do
         input = { 'name' => 123 }
         params = TestParams.new(input)

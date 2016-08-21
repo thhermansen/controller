@@ -794,6 +794,24 @@ class NestedParams < Hanami::Action::Params
   end
 end
 
+class NestedArrayParams < Hanami::Action::Params
+  params do
+    required(:data).schema do
+      required(:attributes).schema do
+        required(:email).filled(:str?, format?: /@/)
+        required(:password).filled(:str?)
+
+        required(:alternative_emails).each do
+          schema do
+            required(:email).filled(:str?, format?: /@/)
+            required(:description).filled(:str?)
+          end
+        end
+      end
+    end
+  end
+end
+
 class Root
   include Hanami::Action
 
